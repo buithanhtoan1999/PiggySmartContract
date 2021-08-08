@@ -74,15 +74,14 @@ contract PiggySale is Owned, ReentrancyGuard {
     uint256 public time_end_next;
     uint256 public cap_sale_next;
     uint256 public total_buy_current;
+    
+    //Referral
+    uint256 private buy_referral_bonus;
 
     event BuyPiggyEvent(uint256 price, uint256 amount);
     event NextPiggySale(uint256 priceBNB, uint256 priceBUSD, uint256 time_start, uint256 time_end, uint256 cap_sale);
     
-    uint256 private rand_nonce = 0;
- 
-    //Referral
- 
-    uint256 private buy_referral_bonus;
+
     mapping (address => uint256) private referrals;
     mapping (uint256 => address) private referral_codes;
     mapping (address => address) private referral_parents;
@@ -102,7 +101,6 @@ contract PiggySale is Owned, ReentrancyGuard {
         time_start_current = time_start;
         time_end_current = time_end;
         cap_sale_current = cap_sale;
-        
     }
     //set next sale info
     function addPrice(uint256 _price_BNB, uint256 _price_BUSD, uint256 time_start, uint256 time_end, uint256 _cap) public onlyOwner {
