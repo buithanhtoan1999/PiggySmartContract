@@ -2,7 +2,10 @@ const { ethers } = require("hardhat");
 
 async function main() {
   const deployer = await ethers.getSigner();
-
+  console.log(
+    "Deploying Piggy Sale contracts with the account:",
+    deployer.address
+  );
   let transaction;
 
   const minAmount = "10";
@@ -11,7 +14,6 @@ async function main() {
   const timeStart = "1628415195";
   const timeEnd = "1628415495";
   const capSale = "50000000000000000000";
-  const PiggySale = await ethers.getContractFactory("PiggySale");
 
   const piggyToken = await ethers.getContractAt(
     "ERC20",
@@ -22,6 +24,7 @@ async function main() {
     "0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7"
   );
 
+  const PiggySale = await ethers.getContractFactory("PiggySale");
   const piggySale = await PiggySale.deploy(
     minAmount,
     priceBNB,

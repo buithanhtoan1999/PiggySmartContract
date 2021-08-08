@@ -1,7 +1,12 @@
-const hre = require("hardhat");
+const { ethers } = require("hardhat");
 
 async function main() {
-  const PiggyToken = await hre.ethers.getContractFactory("PiggyToken");
+  const [deployer] = await ethers.getSigner();
+  console.log(
+    "Deploying Piggy Token contracts with the account:",
+    deployer.address
+  );
+  const PiggyToken = await ethers.getContractFactory("PiggyToken");
   const piggyToken = await PiggyToken.deploy();
 
   await piggyToken.deployed();

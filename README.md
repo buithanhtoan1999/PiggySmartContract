@@ -10,9 +10,157 @@ Project currently use hardhat for deployment. The variable should import from pr
 
 ## Deploy Piggy token contract
 
+1. Import hardhat library, embed ethers, upgrades modules
+
+```javascript
+const { ethers } = require("hardhat");
 ```
 
 2. Configure your revenue address before deploy
+
+```javascript
+const [deployer] = await ethers.getSigners();
+```
+
+3. Log your address of Piggy token deployment
+
+```javascript
+console.log(
+  "Deploying Piggy Token contracts with the account:",
+  deployer.address
+);
+```
+
+4. Get Piggy Token contract factory prototype
+
+```javascript
+const PiggyToken = await ethers.getContractFactory("PiggyToken");
+```
+
+5. Deploy Piggy Token
+
+```javascript
+const piggyToken = await PiggyToken.deploy();
+```
+
+6. Verify Piggy Contract on bscscan
+
+```javascript
+await run("verify:verify", {
+  address: piggyToken.address,
+  constructorArguments: [],
+});
+```
+
+7. Log the address and wait for deploy success
+
+```javascript
+console.log("Piggy Token deployed to:", piggyToken.address);
+```
+
+## Deploy Piggy Sale contract
+
+1. Import hardhat library, embed ethers, upgrades modules
+
+```javascript
+const { ethers } = require("hardhat");
+```
+
+2. Configure your revenue address before deploy
+
+```javascript
+const [deployer] = await ethers.getSigners();
+```
+
+3. Log your address of Piggy token deployment
+
+```javascript
+console.log(
+  "Deploying Piggy Token contracts with the account:",
+  deployer.address
+);
+```
+
+4. Deploy Piggy Token
+
+```javascript
+const piggySale = await PiggySale.deploy();
+```
+
+5. Get instance of Piggy Token (Optional)
+
+```javascript
+//address of piggyToken
+const piggyToken = await ethers.getContractAt(
+  "ERC20",
+  "0x132087ee3e0D006d20Ed2E63669921ab13e4bD7b"
+);
+```
+
+6. Get instance of BUSD (Optional)
+
+```javascript
+const piggyToken = await ethers.getContractAt(
+  "ERC20",
+  "0x132087ee3e0D006d20Ed2E63669921ab13e4bD7b"
+);
+```
+
+7. Config argument before deployment
+
+```javascript
+const minAmount = "10"; //mint amount of buying
+const priceBNB = "100000000000000"; //price of Piggy at BNB
+const priceBUSD = "100000000000000"; //price of Piggy at BUSD
+const timeStart = "1628415195"; //time start of sale
+const timeEnd = "1628415495"; //time end of sale
+const capSale = "50000000000000000000"; //capital of sale period
+```
+
+8. Get Piggy Token contract factory prototype
+
+```javascript
+const PiggySale = await ethers.getContractFactory("PiggySale");
+```
+
+9. Approve BUSD of owner to Piggy Sale Contract
+
+```javascript
+transaction = await piggyToken
+  .connect(deployer)
+  .approve(piggySale.address, "100000000000000000000000000000000000000000000");
+```
+
+10. Approve Piggy Token of owner to Piggy Sale Contract
+
+```javascript
+transaction = await BUSD.connect(deployer).approve(
+  piggySale.address,
+  "100000000000000000000000000000000000000000000000"
+);
+```
+
+11. Verify Piggy Sale Contract on BSCSCAN
+
+```javascript
+await run("verify:verify", {
+  address: piggySale.address,
+  constructorArguments: [
+    minAmount,
+    priceBNB,
+    priceBUSD,
+    timeStart,
+    timeEnd,
+    capSale,
+  ],
+});
+```
+
+12. Log the address of Piggy Sale contract
+
+```javascript
+console.log("Piggy Token deployed to:", piggySale.address);
+```
 
 ## Components
 
@@ -22,17 +170,7 @@ Project currently use hardhat for deployment. The variable should import from pr
 
 - Piggy Token is a smart contract for creating token
 
-
-- PKKTToken contract has following events:
-
-  - event MinterAdded(address indexed account) - emit when minter is added;
-
-  - event MinterRemoved(address indexed account) - emit when minter is removed;
-
-  - event MintingAllowanceUpdated(address indexed account, uint256 oldAllowance, uint256 newAllowance) - emit
-    when minting allowance of minter changes ;
-
-- PKKTToken contract has following functions:
+- PiggyToken contract has following functions:
 
   - constructor - public functions that sets name, symbol, decimal, and totalSupply;
 
@@ -118,4 +256,7 @@ Project currently use hardhat for deployment. The variable should import from pr
 ## License
 
 # Piggy-smartcontract
+
+```
+
 ```
