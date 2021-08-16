@@ -86,12 +86,6 @@ contract PiggySale is Owned, ReentrancyGuard {
     mapping (uint256 => address) private referral_codes;
     mapping (address => address) private referral_parents;
 
-    modifier onlyForSale() {
-        uint256 time_current = block.timestamp;
-        require(time_current >= time_start_current && time_current <= time_end_current && is_sale_token != false, "Token sale is finished or not opened");
-        _;
-    }
- 
     constructor(uint256 _min_amount, uint256 _price_BNB, uint256 _price_BUSD, uint256 time_start, uint256 time_end, uint256 cap_sale) {
         //Referral
         buy_referral_bonus = 15; //15%
@@ -163,13 +157,15 @@ contract PiggySale is Owned, ReentrancyGuard {
         }
     }
     
-    function buyPiggyBNB(uint amount, address refferal) payable public nonReentrant onlyForSale returns(bool)  {
+    function buyPiggyBNB(uint amount, address refferal) payable public nonReentrant returns(bool)  {
         uint256 amount_send = msg.value;
+        uint256 time_current = block.timestamp;
         uint256 token_balance = IERC20(PIGI).balanceOf(address(address_owner));
         require(amount >= min_amount, "You amount to small");
         checkPrice();
         checkCap();
         require(price_current_BNB > 0, "Please set price of token");
+        require(time_current >= time_start_current && time_current <= time_end_current && is_sale_token != false, "Token sale is finished or not opened");
         uint256 total_value = amount * price_current_BNB;
         require(amount_send >= total_value, "not enough value");
         uint256 decimals = IERC20(PIGI).decimals();
@@ -198,12 +194,14 @@ contract PiggySale is Owned, ReentrancyGuard {
     }
 
 
-    function buyPiggyBUSD( uint amount, address refferal) public nonReentrant onlyForSale returns(bool) {
+    function buyPiggyBUSD( uint amount, address refferal) public nonReentrant returns(bool) {
         uint256 token_balance = IERC20(PIGI).balanceOf(address(address_owner));
+        uint256 time_current = block.timestamp;
         require(amount >= min_amount, "You amount to small");
         checkPrice();
         checkCap();
         require(price_current_BUSD > 0, "Please set price of token");
+        require(time_current >= time_start_current && time_current <= time_end_current && is_sale_token != false, "Token sale is finished or not opened");
         uint256 total_value = amount * price_current_BUSD;
         uint256 decimals = IERC20(PIGI).decimals();
         require(decimals >= 0, "Decimals is invalid");

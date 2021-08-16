@@ -7,12 +7,12 @@ async function main() {
     deployer.address
   );
   let transaction;
-
+  const time = await Math.floor(new Date().getTime() / 1000.0);
   const minAmount = "10";
   const priceBNB = "100000000000000";
-  const priceBUSD = "100000000000000";
-  const timeStart = "1628415195";
-  const timeEnd = "1628415495";
+  const priceBUSD = "100000000000000000";
+  const timeStart = time + 200;
+  const timeEnd = time + 800;
   const capSale = "50000000000000000000";
 
   const piggyToken = await ethers.getContractAt(
@@ -47,8 +47,17 @@ async function main() {
     "100000000000000000000000000000000000000000000000"
   );
   console.log("approve BUSD Token: " + transaction.hash);
-
-  await run("verify:verify", {
+  transaction = await piggySale
+    .connect(deployer)
+    .addPrice(
+      "200000000000000",
+      "200000000000000000",
+      time + 1000,
+      time + 16000,
+      "50000000000000000000"
+    );
+  console.log("add price at: " + transaction.hash);
+  transaction = await run("verify:verify", {
     address: piggySale.address,
     constructorArguments: [
       minAmount,
@@ -59,7 +68,7 @@ async function main() {
       capSale,
     ],
   });
-  console.log("Piggy Token deployed to:", piggySale.address);
+  console.log("Piggy Sale deployed to:", piggySale.address);
 }
 
 main()
