@@ -1,9 +1,9 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: UNLICENSED
 
 pragma solidity =0.6.12;
 pragma experimental ABIEncoderV2;
 
-interface IPIGIMarketPlace {
+interface IPiggyMarketPlace {
     struct Bid {
         uint256 tokenId;
         uint256 bidPrice;
@@ -175,11 +175,6 @@ interface IPIGIMarketPlace {
      * @dev Clean all invalid bids
      */
     function cleanAllInvalidBids() external;
-
-    /**
-     * @dev Name of ERC721 token
-     */
-    function erc721Name() external view returns (string memory);
 
     /**
      * @dev Show if listing and bid are enabled

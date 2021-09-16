@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: UNLICENSED
 
 pragma solidity =0.6.12;
 pragma experimental ABIEncoderV2;
@@ -18,7 +18,7 @@ import "./IPiggyMarketPlace.sol";
  * Note: This marketplace contract is collection based. It serves one ERC721 contract only
  * Payment tokens usually is the chain native coin's wrapped token, e.g. WETH, WBNB
  */
-contract PIGIMarketPlace is IPIGIMarketPlace, Ownable, ReentrancyGuard {
+contract PiggyMarketPlace is IPiggyMarketPlace, Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using Address for address;
     using EnumerableSet for EnumerableSet.UintSet;
@@ -30,16 +30,13 @@ contract PIGIMarketPlace is IPIGIMarketPlace, Ownable, ReentrancyGuard {
     }
 
     constructor(
-        string memory erc721Name_,
         address _erc721Address,
         address _paymentTokenAddress
     ) public {
-        _erc721Name = erc721Name_;
         _erc721 = IERC721(_erc721Address);
         _paymentToken = IERC20(_paymentTokenAddress);
     }
 
-    string private _erc721Name;
     IERC721 private immutable _erc721;
     IERC20 private immutable _paymentToken;
 
@@ -382,7 +379,7 @@ contract PIGIMarketPlace is IPIGIMarketPlace, Ownable, ReentrancyGuard {
      * must not be token owner
      * must allow this contract to spend enough payment token
      */
-    function enterBidForToken(
+   function enterBidForToken(
         uint256 tokenId,
         uint256 bidPrice,
         uint256 expireTimestamp
@@ -407,6 +404,7 @@ contract PIGIMarketPlace is IPIGIMarketPlace, Ownable, ReentrancyGuard {
 
         emit TokenBidEntered(tokenId, msg.sender, bidPrice);
     }
+
 
     /**
      * @dev See {IPIGIMarketPlace-withdrawBidForToken}.
@@ -551,13 +549,6 @@ contract PIGIMarketPlace is IPIGIMarketPlace, Ownable, ReentrancyGuard {
             _cleanInvalidBidsOfToken(_tempTokenIdStorage[i]);
         }
         delete _tempTokenIdStorage;
-    }
-
-    /**
-     * @dev See {IPIGIMarketPlace-erc721Name}.
-     */
-    function erc721Name() external view override returns (string memory) {
-        return _erc721Name;
     }
 
     /**

@@ -1,21 +1,28 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-  const deployer = await ethers.getSigner();
+  //config address piggyCharacter;
+  const piggyNFTAddress = "";
+  //config address piggyToken;
+  const piggyTokenAddress = "";
+  const [deployer] = await ethers.getSigners();
   console.log(
     "Deploying Piggy Token contracts with the account:",
     deployer.address
   );
-  const PiggyToken = await ethers.getContractFactory("PiggyMarketPlace");
-  const piggyToken = await PiggyToken.deploy();
 
-  await piggyToken.deployed();
+  const PiggyMarketPlace = await ethers.getContractFactory("PiggyMarketPlace");
+  const piggyMarketPlace = await PiggyMarketPlace.deploy(
+    piggyNFTAddress,
+    piggyTokenAddress
+  );
+  await piggyMarketPlace.deployed();
+
+  console.log("Piggy Market Place deployed to:", piggyMarketPlace.address);
   await run("verify:verify", {
-    address: piggyToken.address,
-    constructorArguments: [],
+    address: piggyMarketPlace.address,
+    constructorArguments: [piggyNFTAddress, piggyTokenAddress],
   });
-
-  console.log("Piggy Token deployed to:", piggyToken.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

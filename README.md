@@ -1,6 +1,45 @@
-# pkkt-contracts
+# PIGGY SMART CONTRACT
 
-The source code includes 2 smartcontracts: Piggy token and PiggySale to buy Piggy Token:
+The source code includes 11 smartcontracts include:
+
+- FreezeTokenWallet
+- IPiggyMarketPlace
+- PiggyCharacter
+- PiggyItem
+- PiggyMarketPlace
+- PiggySale
+- PiggyToken
+- RetrieveTokensFeature
+- StagedCrowdsale
+- TokenDistributor
+- TokenReplacementConfigrator
+
+## Set up variable environment
+
+1. .env file for deployment
+
+```javascript
+// BSC API for verifying. can get on https://bscscan.com/myapikey
+BSC_API_KEY=
+// Testnet private key
+TESTNET_PRIVATE_KEY=
+// Mainnet private key
+BSC_PRIVATE_KEY=
+```
+
+2. .secret file (optional)
+
+- Make file .secret and push bsc testnet seed phase for testing on bsc testnet
+
+3. Configiure wallet address of OWNER*ADDRESS, TEAM* WALLET, MARKETING_WALLET, ADVISORS_WALLET and amount on file contracts/TokenReplacementConfigure.sol
+
+```javascript
+    address private constant OWNER_ADDRESS             = address(0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303);
+    address private constant TEAM_WALLET_OWNER_ADDRESS = address(0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303);
+    address private constant MARKETING_WALLET_ADDRESS  = address(0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303);
+    address private constant LIQUIDITY_WALLET_ADDRESS  = address(0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303);
+    address private constant ADVISORS_WALLET_ADDRESSES = address(0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303);
+```
 
 ## Deploy Factory smart contract
 
@@ -8,7 +47,7 @@ Project currently use hardhat for deployment. The variable should import from pr
 
 ## Plugins
 
-## Deploy Piggy token contract
+## Deploy Token Configrator contract
 
 1. Import hardhat library, embed ethers, upgrades modules
 
@@ -16,13 +55,24 @@ Project currently use hardhat for deployment. The variable should import from pr
 const { ethers } = require("hardhat");
 ```
 
-2. Configure your revenue address before deploy
+2. Set up address and amount for token
+
+```javascript
+const MARKETING_WALLET_ADDRESS = "0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303";
+const LIQUIDITY_WALLET_ADDRESS = "0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303";
+const TEAM_AMOUNT = "1500000000000000000000000000";
+const MARKETING_AMOUNT = "700000000000000000000000000";
+const LIQUIDITY_RESERVE = "3300000000000000000000000000";
+const ADVISORS_AMOUNT = "500000000000000000000000000";
+```
+
+3. Configure your revenue address before deploy
 
 ```javascript
 const [deployer] = await ethers.getSigners();
 ```
 
-3. Log your address of Piggy token deployment
+4. Log your address of Piggy token deployment
 
 ```javascript
 console.log(
@@ -31,34 +81,114 @@ console.log(
 );
 ```
 
-4. Get Piggy Token contract factory prototype
+5. Get contract factory prototype
 
 ```javascript
-const PiggyToken = await ethers.getContractFactory("PiggyToken");
+const TokenReplacementConfigurator = await ethers.getContractFactory(
+  "TokenReplacementConfigurator"
+);
 ```
 
-5. Deploy Piggy Token
+6. Deploy Token Replacement Configrator
 
 ```javascript
-const piggyToken = await PiggyToken.deploy();
+const tokenReplacementConfigurator =
+  await TokenReplacementConfigurator.deploy();
 ```
 
-6. Verify Piggy Contract on bscscan
+7. Verify Token Replacement Configrator on bscscan
 
 ```javascript
 await run("verify:verify", {
-  address: piggyToken.address,
+  address: tokenReplacementConfigurator.address,
   constructorArguments: [],
 });
 ```
 
-7. Log the address and wait for deploy success
+8. Get Address Of Pigi token
+
+```javascript
+const pigiToken = await tokenReplacementConfigurator.token();
+```
+
+9. Get Address Of team wallet
+
+```javascript
+const teamWallet = await tokenReplacementConfigurator.teamWallet();
+```
+
+10. Get Address Of advisors wallet
+
+```javascript
+const advisorsWallet = await tokenReplacementConfigurator.advisorsWallet();
+```
+
+11. Get Address Of token distributor
+
+```javascript
+const tokenDistributor = await tokenReplacementConfigurator.tokenDistributor();
+```
+
+12. Set up address and amount for verifying token PIGI
+
+```javascript
+const addresses = [
+  teamWallet,
+  MARKETING_WALLET_ADDRESS,
+  advisorsWallet,
+  LIQUIDITY_WALLET_ADDRESS,
+];
+const amounts = [
+  TEAM_AMOUNT,
+  MARKETING_AMOUNT,
+  ADVISORS_AMOUNT,
+  LIQUIDITY_RESERVE,
+];
+```
+
+13. Verify Pigi token
+
+```javascript
+await run("verify:verify", {
+  address: pigiToken,
+  constructorArguments: [addresses, amounts],
+});
+```
+
+14. Verify Team wallet
+
+```javascript
+await run("verify:verify", {
+  address: teamWallet,
+  constructorArguments: [],
+});
+```
+
+15. Verify Advisors wallet
+
+```javascript
+await run("verify:verify", {
+  address: teamWallet,
+  constructorArguments: [],
+});
+```
+
+16. Verify token Distributor
+
+```javascript
+await run("verify:verify", {
+  address: tokenDistributor,
+  constructorArguments: [],
+});
+```
+
+17. Log the address and wait for deploy success
 
 ```javascript
 console.log("Piggy Token deployed to:", piggyToken.address);
 ```
 
-## Deploy Piggy Sale contract
+## Deploy Piggy Character contract
 
 1. Import hardhat library, embed ethers, upgrades modules
 
@@ -72,186 +202,272 @@ const { ethers } = require("hardhat");
 const [deployer] = await ethers.getSigners();
 ```
 
-3. Log your address of Piggy token deployment
+3. Log your address of Piggy Character deployment
 
 ```javascript
 console.log(
-  "Deploying Piggy Token contracts with the account:",
+  "Deploying Piggy Character contracts with the account:",
   deployer.address
 );
 ```
 
-4. Deploy Piggy Token
+4. Get contract factory prototype
 
 ```javascript
-const piggySale = await PiggySale.deploy();
-```
-
-5. Get instance of Piggy Token (Optional)
-
-```javascript
-//address of piggyToken
-const piggyToken = await ethers.getContractAt(
-  "ERC20",
-  "0x132087ee3e0D006d20Ed2E63669921ab13e4bD7b"
+const PiggyCharacter = await ethers.getContractFactory("PiggyCharacter");
 );
 ```
 
-6. Get instance of BUSD (Optional)
+5. Deploy Piggy Character
 
 ```javascript
-const piggyToken = await ethers.getContractAt(
-  "ERC20",
-  "0x132087ee3e0D006d20Ed2E63669921ab13e4bD7b"
-);
+const piggyCharacter = await PiggyCharacter.deploy();
 ```
 
-7. Config argument before deployment
+6. Wait contract deployed
 
 ```javascript
-const minAmount = "10"; //mint amount of buying
-const priceBNB = "100000000000000"; //price of Piggy at BNB
-const priceBUSD = "100000000000000"; //price of Piggy at BUSD
-const timeStart = "1628415195"; //time start of sale
-const timeEnd = "1628415495"; //time end of sale
-const capSale = "50000000000000000000"; //capital of sale period
+await piggyCharacter.deployed();
 ```
 
-8. Get Piggy Token contract factory prototype
-
-```javascript
-const PiggySale = await ethers.getContractFactory("PiggySale");
-```
-
-9. Approve BUSD of owner to Piggy Sale Contract
-
-```javascript
-transaction = await piggyToken
-  .connect(deployer)
-  .approve(piggySale.address, "100000000000000000000000000000000000000000000");
-```
-
-10. Approve Piggy Token of owner to Piggy Sale Contract
-
-```javascript
-transaction = await BUSD.connect(deployer).approve(
-  piggySale.address,
-  "100000000000000000000000000000000000000000000000"
-);
-```
-
-11. Verify Piggy Sale Contract on BSCSCAN
+7. Verify contract on BSC scan
 
 ```javascript
 await run("verify:verify", {
-  address: piggySale.address,
-  constructorArguments: [
-    minAmount,
-    priceBNB,
-    priceBUSD,
-    timeStart,
-    timeEnd,
-    capSale,
-  ],
+  address: piggyCharacter.address,
+  constructorArguments: [],
 });
 ```
 
-12. Log the address of Piggy Sale contract
+8. Mint character on bscscan
 
 ```javascript
-console.log("Piggy Token deployed to:", piggySale.address);
+for (i = 1; i <= 21; i++) {
+  transaction = await piggyCharacter
+    .connect(deployer)
+    .mint(deployer.address, i + 1);
+  console.log(
+    "Mint token ID " +
+      i +
+      "at tx https://testnet.bscscan.com/tx/" +
+      transaction.hash
+  );
+}
 ```
 
-## Components
+9. Configure address after deploy
 
-- IERC20 is an interface for interactions with ERC20 tokens.
+```javascript
+console.log("Piggy NFT deployed to:", piggyCharacter.address);
+```
 
-- Owned is contract for access control with an owner role.
+## Deploy Piggy Items contract
 
-- Piggy Token is a smart contract for creating token
+1. Import hardhat library, embed ethers, upgrades modules
 
-- PiggyToken contract has following functions:
+```javascript
+const { ethers } = require("hardhat");
+```
 
-  - constructor - public functions that sets name, symbol, decimal, and totalSupply;
+2. Configure your revenue address before deploy
 
-  - burn - public function that decreases the amount of token by sending to zero address. Has
-    onlyOwner modifier
+```javascript
+const [deployer] = await ethers.getSigners();
+```
 
-  - burnFrom - public function that decreases the amount of token of the given address by sending to zero
-    address for token. Has onlyOwner modifier
+3. Log your address of Piggy Items deployment
 
-- PiggySale is a smart contract for the users can buy Piggy Token from BUSD or BNB;
+```javascript
+console.log(
+  "Deploying Piggy Items contracts with the account:",
+  deployer.address
+);
+```
 
-- PiggySale is a smart contract for campaign management. PiggySale is Owned, RetreencyGuard and has following parameters
+4. Get contract factory prototype
 
-  - address public PIGI = 0x132087ee3e0D006d20Ed2E63669921ab13e4bD7b;
+```javascript
+const PiggyItems = await ethers.getContractFactory("PiggyItems");
+```
 
-  - address public BUSD = 0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7;;
+5. Deploy Piggy Character
 
-  - uint256 public min_amount;
+```javascript
+const piggyItems = await PiggyItems.deploy();
+```
 
-  - uint256 public price_current_BUSD;
+6. Wait contract deployed
 
-  - uint256 public price_current_BNB;
+```javascript
+await piggyItems.deployed();
+```
 
-  - uint256 public cap_sale_current;
+7. Verify contract on BSC scan
 
-  - uint256 public time_start_current;
+```javascript
+await run("verify:verify", {
+  address: piggyItems.address,
+  constructorArguments: [],
+});
+```
 
-  - uint256 public time_end_current;
+8. Mint character on bscscan
 
-  - bool public is_sale_token = true;
+```javascript
+for (i = 1; i <= 36; i++) {
+  transaction = await piggyItems
+    .connect(deployer)
+    .mint(deployer.address, i + 1);
+  console.log(
+    "Mint token ID " +
+      i +
+      "at tx https://testnet.bscscan.com/tx/" +
+      transaction.hash
+  );
+}
+```
 
-  - uint256 public price_next_BUSD;
+9. Configure address after deploy
 
-  - uint256 public price_next_BNB;
+```javascript
+console.log("Piggy NFT deployed to:", piggyItems.address);
+```
 
-  - uint256 public time_start_next;
+## Deploy Piggy Market Place Character contract
 
-  - uint256 public time_end_next;
+1. Import hardhat library, embed ethers, upgrades modules
 
-  - uint256 public cap_sale_next;
+```javascript
+const { ethers } = require("hardhat");
+```
 
-  - uint256 public total_buy_current;
+2. Set up address of piggy token and piggy character NFT address
 
-  - uint256 private buy_referral_bonus;
+```javascript
+//config address piggyCharacter;
+const piggyNFTAddress = "";
+//config address piggyToken;
+const piggyTokenAddress = "";
+```
 
-  - event BuyPiggyEvent(uint256 price, uint256 amount): emit when user buy token;
+3. Configure your revenue address before deploy
 
-  - event NextPiggySale(uint256 priceBNB, uint256 priceBUSD, uint256 time_start, uint256 time_end, uint256 cap_sale) : emit when update next sale for piggy token
+```javascript
+const [deployer] = await ethers.getSigners();
+```
 
-  - modifier onlyForSale;
+4. Log your address of Piggy Items deployment
 
-- Piggy Sale contract has following functions:
+```javascript
+console.log(
+  "Deploying Piggy Items contracts with the account:",
+  deployer.address
+);
+```
 
-  - constructor - public functions that has 6 arguments: min amount of buy token, price of piggy in BNB, price
-    of piggy in BUSD, time start sale, time end sale and capital of sale period
+5. Get contract factory prototype
 
-  - addPrice - public function that set infomation about next sale. Has onlyOwner modifier
+```javascript
+const PiggyMarketPlaceCharacter = await ethers.getContractFactory(
+  "PiggyMarketPlaceCharacter"
+);
+```
 
-  - setBonus - public function that set the new bonus for referral. Has onlyOwner modifier
+6. Deploy Piggy Market Place Character
 
-  - set - public function that updates allocPoint of the given pool. Has onlyOwner modifier
+```javascript
+const piggyMarketPlaceCharacter = await PiggyMarketPlaceCharacter.deploy();
+```
 
-  - closeSale - public function that close sale which not allow users buy Piggy Token anymore
+7. Wait contract deployed
 
-  - priceCurrent - public function that returns price of PiggyToken in BNB and BUSD
+```javascript
+await piggyMarketPlaceCharacter.deployed();
+```
 
-  - isSale - public view function that returns the status of sale period .
+7. Verify contract on BSC scan
 
-  - getSaleInfo - public function that returns the whole of information about sale
+```javascript
+await run("verify:verify", {
+  address: piggyMarketPlaceCharacter.address,
+  constructorArguments: [piggyNFTAddress, piggyTokenAddress],
+});
+```
 
-  - sendToken - public function that send token for owner
+8. Configure address after deploy
 
-  - checkPrice - public function that updates and check price for buy
+```javascript
+console.log("Piggy NFT deployed to:", piggyMarketPlaceCharacter.address);
+```
 
-  - checkCap - public function that update and check capital of sale
+## Deploy Piggy Market Place Items contract
 
-  - buyPiggyBNB - public function that the users buy Piggy Token by BNB native
+1. Import hardhat library, embed ethers, upgrades modules
 
-  - buyPiggyBUSD - public function that the users buy Piggy Token by BUSD token
+```javascript
+const { ethers } = require("hardhat");
+```
 
-  - receive - public function that allow contract receive BNB
+2. Set up address of piggy token and piggy character NFT address
+
+```javascript
+//config address piggyCharacter;
+const piggyNFTAddress = "";
+//config address piggyToken;
+const piggyTokenAddress = "";
+```
+
+3. Configure your revenue address before deploy
+
+```javascript
+const [deployer] = await ethers.getSigners();
+```
+
+4. Log your address of Piggy Items deployment
+
+```javascript
+console.log(
+  "Deploying Piggy Items contracts with the account:",
+  deployer.address
+);
+```
+
+5. Get contract factory prototype
+
+```javascript
+const PiggyMarketPlaceItems = await ethers.getContractFactory(
+  "PiggyMarketPlace"
+);
+```
+
+6. Deploy Piggy Market Place Character
+
+```javascript
+const piggyMarketPlaceItems = await PiggyMarketPlaceItems.deploy();
+```
+
+7. Wait contract deployed
+
+```javascript
+await piggyMarketPlaceItems.deployed();
+```
+
+7. Verify contract on BSC scan
+
+```javascript
+await run("verify:verify", {
+  address: piggyMarketPlaceItems.address,
+  constructorArguments: [piggyNFTAddress, piggyTokenAddress],
+});
+```
+
+8. Configure address after deploy
+
+```javascript
+console.log("Piggy NFT deployed to:", piggyMarketPlaceItems.address);
+```
+
+## Component
 
 ## License
 

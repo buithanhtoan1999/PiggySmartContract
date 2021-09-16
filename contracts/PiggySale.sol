@@ -1,230 +1,107 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.6.12;
 
-pragma solidity ^0.8.4;
+import "./RetrieveTokensFeature.sol";
+import "./StagedCrowdsale.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-interface IERC20 {
-    function totalSupply() external view returns (uint);
-    function balanceOf(address tokenOwner) external view returns (uint balance);
-    function allowance(address tokenOwner, address spender) external view returns (uint remaining);
-    function transfer(address to, uint tokens) external returns (bool success);
-    function approve(address spender, uint tokens) external returns (bool success);
-    function transferFrom(address from, address to, uint tokens) external returns (bool success);
 
-    function name() external view returns (string memory);
-    function symbol() external view returns (string memory);
-    function decimals() external view returns (uint);
+contract PiggySale is StagedCrowdsale, RetrieveTokensFeature, ReentrancyGuard {
 
-    event Transfer(address indexed from, address indexed to, uint tokens);
-    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
-}
+    using SafeMath for uint256;
 
-abstract contract ReentrancyGuard {
+    IERC20 public tokenSale;
+    IERC20 public tokenPayment;
 
-    uint256 private constant _NOT_ENTERED = 1;
-    uint256 private constant _ENTERED = 2;
+    uint256 public invested;
+    uint256 public percentRate = 100;
+    bool public isPause = false;
+    address public ownerWallet;
 
-    uint256 private _status;
 
-    constructor() {
-        _status = _NOT_ENTERED;
-    }
+    mapping(uint256 => mapping(address => uint256)) public balances;
 
-    modifier nonReentrant() {
-        require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
-        _status = _ENTERED;
+    event BuyToken(address indexed account, uint256 amount, uint256 price);
 
-        _;
-        _status = _NOT_ENTERED;
-    }
-}
-
-contract Owned {
-    address public address_owner;
-    constructor()  { 
-        address_owner = payable(msg.sender);
-    }
-
-    modifier onlyOwner {
-        require(
-            msg.sender == address_owner,
-            "Only owner can call this function."
-        );
-        _;
-    }
-    function transferOwnership(address _address_owner) public onlyOwner {
-        address_owner = _address_owner;
-    }
-}
-
-contract PiggySale is Owned, ReentrancyGuard {
-    
-    //address PIGI
-    address public PIGI = 0x132087ee3e0D006d20Ed2E63669921ab13e4bD7b;
-    //address BUSD
-    address public BUSD = 0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7;
-    uint256 public min_amount;
-    uint256 public price_current_BUSD;
-    uint256 public price_current_BNB;
-    uint256 public cap_sale_current;
-    uint256 public time_start_current;
-    uint256 public time_end_current;
-    bool public is_sale_token = true;
-    uint256 public price_next_BUSD;
-    uint256 public price_next_BNB;
-    uint256 public time_start_next;
-    uint256 public time_end_next;
-    uint256 public cap_sale_next;
-    uint256 public total_buy_current;
-    
-    //Referral
-    uint256 private buy_referral_bonus;
-
-    event BuyPiggyEvent(uint256 price, uint256 amount);
-    event NextPiggySale(uint256 priceBNB, uint256 priceBUSD, uint256 time_start, uint256 time_end, uint256 cap_sale);
-    
-
-    mapping (address => uint256) private referrals;
-    mapping (uint256 => address) private referral_codes;
-    mapping (address => address) private referral_parents;
-
-    constructor(uint256 _min_amount, uint256 _price_BNB, uint256 _price_BUSD, uint256 time_start, uint256 time_end, uint256 cap_sale) {
-        //Referral
-        buy_referral_bonus = 15; //15%
-        min_amount = _min_amount;
-        price_current_BNB = _price_BNB;
-        price_current_BUSD = _price_BUSD;
-        time_start_current = time_start;
-        time_end_current = time_end;
-        cap_sale_current = cap_sale;
-    }
-    //set next sale info
-    function addPrice(uint256 _price_BNB, uint256 _price_BUSD, uint256 time_start, uint256 time_end, uint256 _cap) public onlyOwner {
-        require(time_end > time_start && time_start > time_end_current, "Invalid time");
-        price_next_BNB = _price_BNB;
-        price_next_BUSD = _price_BUSD;
-        time_start_next = time_start;
-        time_end_next = time_end;
-        cap_sale_next = _cap;
-        checkPrice();
-        emit NextPiggySale(_price_BNB, _price_BUSD, time_start, time_end, _cap);
-    }
-    
-    //Referral
-    function setBonus(uint256 buy_bonus) public returns(uint256) {
-        buy_referral_bonus = buy_bonus;
-        return (buy_referral_bonus);
-    }
-    //close sale   
-    function closeSale() public onlyOwner {
-        is_sale_token = false;
-    }
-    
-    function priceCurrent() public view returns(uint256 priceBNB, uint256 priceBUSD) {
-        return (price_current_BNB, price_current_BUSD);
-    }
-    
-    function isSale() public view returns(bool) {
-        return ( block.timestamp >= time_start_current && block.timestamp <= time_end_current && is_sale_token != false);
-    }
-    
-    function getSaleInfo() public view returns(bool is_sale, uint256 minamount, uint256 priceBNB, uint256 priceBUSD, uint256 buy_bonus, uint256 total_buy){
-        bool is_sale_status = (block.timestamp <= time_end_current && is_sale_token != false);
-        return (is_sale_status, min_amount, price_current_BNB, price_current_BUSD, buy_referral_bonus, total_buy_current);
-    }
+    constructor(address _ownerWallet, address _tokenPayment, address _tokenSale) public {
+        ownerWallet = _ownerWallet;
+        tokenPayment = IERC20(_tokenPayment);
+        tokenSale = IERC20(_tokenSale);
         
-    function sendToken(address _token_address) payable public returns(bool) {
-        IERC20 token = IERC20(_token_address);
-        uint256 balance = token.balanceOf(address(this));
-        return token.transfer(address_owner, balance);
-    }
-    
-    function checkPrice() public {
-        uint256 time_current = block.timestamp;
-        if (price_next_BNB > 0 && price_next_BUSD > 0 && time_current >= time_start_next && time_current <= time_end_next)
-        {
-            price_current_BNB = price_next_BNB;
-            price_current_BUSD = price_next_BUSD;
-            time_start_current = time_start_next;
-            time_end_current = time_end_next;
-            price_next_BNB = 0;
-            price_next_BUSD = 0;
-        }
     }
 
-    function checkCap() public {
-        uint256 time_current = block.timestamp;
-        if(time_current > time_end_current) {
-            total_buy_current = 0;
-        }
+    function pause() public onlyOwner {
+        isPause = true;
     }
-    
-    function buyPiggyBNB(uint amount, address refferal) payable public nonReentrant returns(bool)  {
-        uint256 amount_send = msg.value;
-        uint256 time_current = block.timestamp;
-        uint256 token_balance = IERC20(PIGI).balanceOf(address(address_owner));
-        require(amount >= min_amount, "You amount to small");
-        checkPrice();
-        checkCap();
-        require(price_current_BNB > 0, "Please set price of token");
-        require(time_current >= time_start_current && time_current <= time_end_current && is_sale_token != false, "Token sale is finished or not opened");
-        uint256 total_value = amount * price_current_BNB;
-        require(amount_send >= total_value, "not enough value");
-        uint256 decimals = IERC20(PIGI).decimals();
-        require(decimals >= 0, "Decimals is invalid");
-        uint256 amount_buy = amount * (10 ** decimals);
-        require(token_balance >= amount_buy, "Not enough tokens in the reserve");
-        require(amount_buy > 0, "You amount token to small");
-        //send PIGGY Token for buyer 
-        require(total_buy_current + amount_buy <= cap_sale_current);
-        IERC20(PIGI).transferFrom(address_owner, msg.sender, amount_buy);
+
+    function unpause() public onlyOwner {
+        isPause = false;
+    }
+
+    function setTokenSale(address newTokenAddress) public onlyOwner() {
+        tokenSale = IERC20(newTokenAddress);
+    }
+
+    function setOwnerWallet(address newOwnerWalletAddress) public onlyOwner() {
+        ownerWallet = newOwnerWalletAddress;
+    }
+
+    function setTokenPayment(address newTokenAddress) public onlyOwner() {
+        tokenPayment = IERC20(newTokenAddress);
+    }
+
+    function setPercentRate(uint256 newPercentRate) public onlyOwner() {
+        percentRate = newPercentRate;
+    }
+
+    function updateInvested(uint256 value) internal {
+        invested = invested.add(value);
+    }
+
+    function buyToken(uint256 amountBUSD, address referral) public nonReentrant returns (uint) {
+        require(!isPause, "Contract paused");
+
+        uint256 milestoneIndex = currentMilestone();
+        Milestone storage milestone = milestones[milestoneIndex];
+
+        // limit the minimum amount for one transaction 
+        require(amountBUSD >= milestone.minInvestedLimit, "The amount is too small");
+
+        // limit the maximum amount that one user can spend during the current milestone 
+        uint256 maxAllowableValue = milestone.maxInvestedLimit - balances[milestoneIndex][_msgSender()];
+        if (amountBUSD > maxAllowableValue) {
+            amountBUSD = maxAllowableValue;
+        }
+        require(amountBUSD > 0, "Investment limit exceeded!");
+        uint256 amountPiggy = amountBUSD.mul(10**18).div(milestone.price);
+        tokenPayment.transferFrom(msg.sender, ownerWallet, amountBUSD);
+
+        // update stats
+        invested = invested.add(amountPiggy);
+        milestone.tokensSold = milestone.tokensSold.add(amountPiggy);
+        balances[milestoneIndex][_msgSender()] = balances[milestoneIndex][_msgSender()].add(amountBUSD);
         
-        //send leftover 
-        if(amount_send > total_value) {
-            uint256 leftOver = amount_send - total_value;
-            payable(msg.sender).transfer(leftOver);
+        //we calculate the amount locked 
+    
+        uint256 amountLock = amountPiggy.mul(milestone.amountLock).div(percentRate);
+
+        //amount transfer to user
+        
+        tokenSale.transferFrom(ownerWallet, msg.sender, amountPiggy.sub(amountLock));
+        emit BuyToken(msg.sender, amountPiggy, milestone.price);
+        // Calculate referral
+        if(referral != address(0)){
+            uint256 referralBonus = milestone.referralBonus;
+            // apply a referral
+            uint256 referralAmount = amountPiggy.mul(referralBonus).div(percentRate);
+            tokenSale.transferFrom(ownerWallet, referral, referralAmount);
         }
-        //send for referral
-        if (refferal != address(0))
-        {
-            payable(refferal).transfer(buy_referral_bonus * total_value / 100); 
-        }
-        payable(address_owner).transfer(address(this).balance);
-        total_buy_current = total_buy_current + amount_buy;
-        emit BuyPiggyEvent(token_balance, amount_buy);
-        return true;
+
+        return amountPiggy;
     }
 
 
-    function buyPiggyBUSD( uint amount, address refferal) public nonReentrant returns(bool) {
-        uint256 token_balance = IERC20(PIGI).balanceOf(address(address_owner));
-        uint256 time_current = block.timestamp;
-        require(amount >= min_amount, "You amount to small");
-        checkPrice();
-        checkCap();
-        require(price_current_BUSD > 0, "Please set price of token");
-        require(time_current >= time_start_current && time_current <= time_end_current && is_sale_token != false, "Token sale is finished or not opened");
-        uint256 total_value = amount * price_current_BUSD;
-        uint256 decimals = IERC20(PIGI).decimals();
-        require(decimals >= 0, "Decimals is invalid");
-        uint256 amount_buy = amount * (10 ** decimals);
-        //check owner balance
-        require(token_balance >= amount_buy, "Not enough tokens in the reserve");
-        //check amount
-        require(amount_buy > 0, "You amount token to small"); 
-        require(total_buy_current + amount_buy <= cap_sale_current);
-        IERC20(BUSD).transferFrom(msg.sender, address_owner, total_value);
-        //send PIGGY Token for buyer 
-        IERC20(PIGI).transferFrom(address_owner, msg.sender, amount_buy);
-        //send for referral
-        if (refferal != address(0))
-        {
-            IERC20(BUSD).transferFrom(address_owner, refferal, buy_referral_bonus * total_value / 100); 
-        }
-        payable(address_owner).transfer(address(this).balance);
-
-        total_buy_current = total_buy_current + amount_buy;
-        emit BuyPiggyEvent(token_balance, amount_buy);
-        return true;
-    }
-
-    receive () external payable {}
 }
+

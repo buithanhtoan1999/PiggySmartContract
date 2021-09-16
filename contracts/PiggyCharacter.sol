@@ -1,9 +1,10 @@
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.6.12;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract PiggyCore is ERC721, Ownable {
+contract PiggyCharacter is ERC721, Ownable {
 
     mapping(address => bool) public isMinter;
 
@@ -12,7 +13,7 @@ contract PiggyCore is ERC721, Ownable {
         _;
     }
 
-    constructor() public ERC721("PiggyNFT", "PIGINFT") {
+    constructor() public ERC721("PiggyCharacter", "PIGINFT") {
         isMinter[msg.sender] = true;
     }
 

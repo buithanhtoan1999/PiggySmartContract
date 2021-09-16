@@ -7,21 +7,26 @@ async function main() {
     "Deploying Piggy Token contracts with the account:",
     deployer.address
   );
-  const PiggyNFT = await ethers.getContractFactory("PiggyCore");
-  const piggyNFT = await PiggyNFT.deploy();
+  const PiggyItems = await ethers.getContractFactory("PiggyItems");
+  const piggyItems = await PiggyItems.deploy();
 
-  await piggyNFT.deployed();
+  await piggyItems.deployed();
   await run("verify:verify", {
     address: piggyNFT.address,
     constructorArguments: [],
   });
 
-  for (i = 0; i < 100; i++) {
-    transaction = await piggyNFT.connect(deployer).mint(deployer.address, i);
-    console.log(transaction.hash + "Mint token ID " + i);
+  for (i = 1; i <= 36; i++) {
+    transaction = await piggyItems.connect(deployer).mint(deployer.address, i);
+    console.log(
+      "Mint token ID " +
+        i +
+        "at tx https://testnet.bscscan.com/tx/" +
+        transaction.hash
+    );
   }
 
-  console.log("Piggy NFT deployed to:", piggyNFT.address);
+  console.log("Piggy NFT deployed to:", piggyItems.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
