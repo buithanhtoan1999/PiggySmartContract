@@ -60,7 +60,10 @@ async function main() {
     constructorArguments: [],
   });
 
-  console.log("Piggy Token deployed to:", tokenReplacementConfigurator.address);
+  console.log(
+    "Piggy Token Replacement configurator deployed to:",
+    tokenReplacementConfigurator.address
+  );
 }
 
 // We recommend this pattern to be able to use async/await everywhere

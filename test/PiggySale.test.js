@@ -84,7 +84,7 @@ describe("Piggy Sale ", async function () {
       .connect(deployer)
       .approve(piggySale.address, maxUint256);
     console.log(
-      "Owner wallet approve for contract piggy sale at tx https://testnet.bscscan.com/tx/" +
+      "7.Owner wallet approve for contract piggy sale at tx https://testnet.bscscan.com/tx/" +
         transaction.hash
     );
 
@@ -92,18 +92,20 @@ describe("Piggy Sale ", async function () {
       .connect(account1)
       .buyToken("100000000000000000000", account2.address);
     console.log(
-      "7.Account 1 buy 100 USD at transaction https://testnet.bscscan.com/tx/" +
+      "8.Account 1 buy 100 USD at transaction https://testnet.bscscan.com/tx/" +
         transaction.hash
     );
     balancePigiAcc1 = await piggyTokenTest.balanceOf(account1.address);
     console.log(
-      "Balance PIGI of Account1 is:  " + formatEther(balancePigiAcc1) + "PIGI"
+      "9.Balance PIGI of Account1 is:  " + formatEther(balancePigiAcc1) + "PIGI"
     );
     balancePigiAcc2 = await piggyTokenTest.balanceOf(account2.address);
     console.log(
-      "Balance PIGI of account 2 is:  " + formatEther(balancePigiAcc2) + "PIGI"
+      "10.Balance PIGI of account 2 is:  " +
+        formatEther(balancePigiAcc2) +
+        "PIGI"
     );
     balanceDeployer = await BUSD.balanceOf(deployer.address);
-    console.log("Balance BUSD of owner:  " + formatEther(balanceDeployer));
+    console.log("11.Balance BUSD of owner:  " + formatEther(balanceDeployer));
   });
 });

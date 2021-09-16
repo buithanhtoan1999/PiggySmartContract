@@ -87,7 +87,7 @@ describe("Piggy Market Place Character", async function () {
       .connect(account1)
       .buyToken(1, { gasLimit: 1000000 });
     console.log(
-      "10. Account 2 buy token ID  for bid token ID = 1 at tx https://testnet.bscscan.com/tx/" +
+      "10. Account 1 buy token ID  for bid token ID = 1 at tx https://testnet.bscscan.com/tx/" +
         transaction.hash
     );
     transaction = await piggyMarketPlace
@@ -96,7 +96,7 @@ describe("Piggy Market Place Character", async function () {
         gasLimit: 1000000,
       });
     console.log(
-      "11. Account 2 enter  for bid token ID = 1 at tx https://testnet.bscscan.com/tx/" +
+      "11. Account 1 enter  for bid token ID = 3 at tx https://testnet.bscscan.com/tx/" +
         transaction.hash
     );
 
