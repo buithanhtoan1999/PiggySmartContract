@@ -1,6 +1,5 @@
 const { ethers } = require("hardhat");
-const MARKETING_WALLET_ADDRESS = "0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303";
-const LIQUIDITY_WALLET_ADDRESS = "0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303";
+
 const TEAM_AMOUNT = "1500000000000000000000000000";
 const MARKETING_AMOUNT = "700000000000000000000000000";
 const LIQUIDITY_RESERVE = "3300000000000000000000000000";
@@ -8,7 +7,7 @@ const ADVISORS_AMOUNT = "500000000000000000000000000";
 async function main() {
   const [deployer] = await ethers.getSigners();
   console.log(
-    "Deploying Piggy Token contracts with the account:",
+    "Deploying token replacement configurator  contracts with the account:",
     deployer.address
   );
   const TokenReplacementConfigurator = await ethers.getContractFactory(
@@ -28,6 +27,10 @@ async function main() {
   const advisorsWallet = await tokenReplacementConfigurator.advisorsWallet();
   const tokenDistributor =
     await tokenReplacementConfigurator.tokenDistributor();
+  const MARKETING_WALLET_ADDRESS =
+    await tokenReplacementConfigurator.MARKETING_WALLET_ADDRESS();
+  const LIQUIDITY_WALLET_ADDRESS =
+    await tokenReplacementConfigurator.LIQUIDITY_WALLET_ADDRESS();
   const addresses = [
     teamWallet,
     MARKETING_WALLET_ADDRESS,

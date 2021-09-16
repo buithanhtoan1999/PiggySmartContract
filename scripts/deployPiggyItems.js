@@ -12,8 +12,9 @@ async function main() {
 
   await piggyItems.deployed();
   await run("verify:verify", {
-    address: piggyNFT.address,
+    address: piggyItems.address,
     constructorArguments: [],
+    contract: "contracts/PiggyItems.sol:PiggyItems",
   });
 
   for (i = 1; i <= 36; i++) {
@@ -21,7 +22,7 @@ async function main() {
     console.log(
       "Mint token ID " +
         i +
-        "at tx https://testnet.bscscan.com/tx/" +
+        ": at tx https://testnet.bscscan.com/tx/" +
         transaction.hash
     );
   }

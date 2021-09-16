@@ -49,11 +49,11 @@ contract TokenReplacementConfigurator is RetrieveTokensFeature {
     uint256 private constant LIQUIDITY_RESERVE         = 3300000000 * 1 ether;
     uint256 private constant ADVISORS_AMOUNT           = 500000000 * 1 ether;
 
-    address private constant OWNER_ADDRESS             = address(0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303);
-    address private constant TEAM_WALLET_OWNER_ADDRESS = address(0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303);
-    address private constant MARKETING_WALLET_ADDRESS  = address(0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303);
-    address private constant LIQUIDITY_WALLET_ADDRESS  = address(0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303);
-    address private constant ADVISORS_WALLET_ADDRESSES = address(0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303);
+    address public constant OWNER_ADDRESS             = address(0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303);
+    address public constant TEAM_WALLET_OWNER_ADDRESS = address(0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303);
+    address public constant MARKETING_WALLET_ADDRESS  = address(0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303);
+    address public constant LIQUIDITY_WALLET_ADDRESS  = address(0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303);
+    address public constant ADVISORS_WALLET_ADDRESSES = address(0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303);
 
     uint256 private constant STAGE1_START_DATE         = 1631620800;    // Sep 14 2021 12:00:00 GMT+0100
 

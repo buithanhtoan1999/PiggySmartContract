@@ -1,18 +1,20 @@
 # PIGGY SMART CONTRACT
 
+## CONTRACTS
+
 The source code includes 11 smartcontracts include:
 
-- FreezeTokenWallet
-- IPiggyMarketPlace
-- PiggyCharacter
-- PiggyItem
-- PiggyMarketPlace
-- PiggySale
-- PiggyToken
+- FreezeTokenWallet - A wallet for frozen team tokens
+- IPiggyMarketPlace - Interface of market place contract
+- PiggyCharacter - NFT Piggy Character
+- PiggyItems - NFT Piggy Items
+- PiggyMarketPlace - Market Place contract
+- PiggySale - Sale Contract
+- PiggyToken - Token contract
 - RetrieveTokensFeature
-- StagedCrowdsale
-- TokenDistributor
-- TokenReplacementConfigrator
+- StagedCrowdsale -library for sale contract
+- TokenDistributor - distributor contract
+- TokenReplacementConfigrator - contract deployment
 
 ## Set up variable environment
 
@@ -58,6 +60,7 @@ const { ethers } = require("hardhat");
 2. Set up address and amount for token
 
 ```javascript
+config MARKETING WALLET
 const MARKETING_WALLET_ADDRESS = "0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303";
 const LIQUIDITY_WALLET_ADDRESS = "0x68CE6F1A63CC76795a70Cf9b9ca3f23293547303";
 const TEAM_AMOUNT = "1500000000000000000000000000";
