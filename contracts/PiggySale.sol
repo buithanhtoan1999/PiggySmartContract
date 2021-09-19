@@ -20,10 +20,14 @@ contract PiggySale is StagedCrowdsale, RetrieveTokensFeature, ReentrancyGuard {
     bool public isPause = false;
     address public ownerWallet;
 
+    
+    mapping(address => bool) public whitelist;
 
     mapping(uint256 => mapping(address => uint256)) public balances;
 
     event BuyToken(address indexed account, uint256 amount, uint256 price);
+
+    mapping(uint256 => bool) public whitelistedMilestones;
 
     constructor(address _ownerWallet, address _tokenPayment, address _tokenSale) public {
         ownerWallet = _ownerWallet;
@@ -31,6 +35,26 @@ contract PiggySale is StagedCrowdsale, RetrieveTokensFeature, ReentrancyGuard {
         tokenSale = IERC20(_tokenSale);
         
     }
+
+    function setMilestoneWithWhitelist(uint256 index) public onlyOwner {
+        whitelistedMilestones[index] = true;
+    }
+
+    function unsetMilestoneWithWhitelist(uint256 index) public onlyOwner {
+        whitelistedMilestones[index] = false;
+    }
+
+    function addToWhiteList(address target) public onlyOwner {
+        require(!whitelist[target], "Already in whitelist");
+        whitelist[target] = true;
+    }
+
+    function addToWhiteListMultiple(address[] memory targets) public onlyOwner {
+        for (uint i = 0; i < targets.length; i++) {
+            if (!whitelist[targets[i]]) whitelist[targets[i]] = true;
+        }
+    }
+
 
     function pause() public onlyOwner {
         isPause = true;
@@ -68,6 +92,11 @@ contract PiggySale is StagedCrowdsale, RetrieveTokensFeature, ReentrancyGuard {
 
         // limit the minimum amount for one transaction 
         require(amountBUSD >= milestone.minInvestedLimit, "The amount is too small");
+
+        // check if the milestone requires user to be whitelisted
+        if (whitelistedMilestones[milestoneIndex]) {
+            require(whitelist[_msgSender()], "The address must be whitelisted!");
+        }
 
         // limit the maximum amount that one user can spend during the current milestone 
         uint256 maxAllowableValue = milestone.maxInvestedLimit - balances[milestoneIndex][_msgSender()];

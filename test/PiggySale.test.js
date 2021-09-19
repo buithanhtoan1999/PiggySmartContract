@@ -107,5 +107,5 @@ describe("Piggy Sale ", async function () {
     );
     balanceDeployer = await BUSD.balanceOf(deployer.address);
     console.log("11.Balance BUSD of owner:  " + formatEther(balanceDeployer));
-  });
+  }).timeout(40000000000000);
 });
