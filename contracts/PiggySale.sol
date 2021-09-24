@@ -55,7 +55,6 @@ contract PiggySale is StagedCrowdsale, RetrieveTokensFeature, ReentrancyGuard {
         }
     }
 
-
     function pause() public onlyOwner {
         isPause = true;
     }

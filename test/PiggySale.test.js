@@ -31,7 +31,7 @@ describe("Piggy Sale ", async function () {
     const BUSD = await BUSDToken.deploy();
     await BUSD.deployed();
     console.log(
-      "2. BUSD deploy at address https://testnet.bscscan.com/tx/" + BUSD.address
+      "2. BUSD deploy  at address https://testnet.bscscan.com/tx/" + BUSD.address
     );
 
     const piggySale = await PiggySale.deploy(

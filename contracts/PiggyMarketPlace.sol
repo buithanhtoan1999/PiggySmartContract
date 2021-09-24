@@ -13,11 +13,7 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./IPiggyMarketPlace.sol";
 
-/**
- * @title NFTKEY MarketPlace contract V1
- * Note: This marketplace contract is collection based. It serves one ERC721 contract only
- * Payment tokens usually is the chain native coin's wrapped token, e.g. WETH, WBNB
- */
+
 contract PiggyMarketPlace is IPiggyMarketPlace, Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using Address for address;
@@ -111,14 +107,14 @@ contract PiggyMarketPlace is IPiggyMarketPlace, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev See {INFTKEYMarketPlaceV1-tokenAddress}.
+     * @dev See {IPiggyMarketPlace-tokenAddress}.
      */
     function tokenAddress() external view override returns (address) {
         return address(_erc721);
     }
 
     /**
-     * @dev See {INFTKEYMarketPlaceV1-paymentTokenAddress}.
+     * @dev See {IPiggyMarketPlace-paymentTokenAddress}.
      */
     function paymentTokenAddress() external view override returns (address) {
         return address(_paymentToken);
@@ -142,7 +138,7 @@ contract PiggyMarketPlace is IPiggyMarketPlace, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev See {INFTKEYMarketPlaceV1-getTokenListing}.
+     * @dev See {IPiggyMarketPlace-getTokenListing}.
      */
     function getTokenListing(uint256 tokenId) public view override returns (Listing memory) {
         Listing memory listing = _tokenListings[tokenId];
@@ -152,7 +148,7 @@ contract PiggyMarketPlace is IPiggyMarketPlace, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev See {INFTKEYMarketPlaceV1-getTokenListings}.
+     * @dev See {IPiggyMarketPlace-getTokenListings}.
      */
     function getTokenListings(uint256 from, uint256 size)
         public
@@ -177,7 +173,7 @@ contract PiggyMarketPlace is IPiggyMarketPlace, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev See {INFTKEYMarketPlaceV1-getAllTokenListings}.
+     * @dev See {IPiggyMarketPlace-getAllTokenListings}.
      */
     function getAllTokenListings() external view override returns (Listing[] memory) {
         return getTokenListings(0, _tokenIdWithListing.length());
@@ -203,7 +199,7 @@ contract PiggyMarketPlace is IPiggyMarketPlace, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev See {INFTKEYMarketPlaceV1-getBidderTokenBid}.
+     * @dev See {IPiggyMarketPlace-getBidderTokenBid}.
      */
     function getBidderTokenBid(uint256 tokenId, address bidder)
         public
@@ -218,7 +214,7 @@ contract PiggyMarketPlace is IPiggyMarketPlace, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev See {INFTKEYMarketPlaceV1-getTokenBids}.
+     * @dev See {IPiggyMarketPlace-getTokenBids}.
      */
     function getTokenBids(uint256 tokenId) external view override returns (Bid[] memory) {
         Bid[] memory bids = new Bid[](_tokenBids[tokenId].bidders.length());
@@ -233,7 +229,7 @@ contract PiggyMarketPlace is IPiggyMarketPlace, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev See {INFTKEYMarketPlaceV1-getTokenHighestBid}.
+     * @dev See {IPiggyMarketPlace-getTokenHighestBid}.
      */
     function getTokenHighestBid(uint256 tokenId) public view override returns (Bid memory) {
         Bid memory highestBid = Bid(tokenId, 0, address(0), 0);
@@ -248,7 +244,7 @@ contract PiggyMarketPlace is IPiggyMarketPlace, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev See {INFTKEYMarketPlaceV1-getTokenHighestBids}.
+     * @dev See {IPiggyMarketPlace-getTokenHighestBids}.
      */
     function getTokenHighestBids(uint256 from, uint256 size)
         public
@@ -270,7 +266,7 @@ contract PiggyMarketPlace is IPiggyMarketPlace, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev See {INFTKEYMarketPlaceV1-getAllTokenHighestBids}.
+     * @dev See {IPiggyMarketPlace-getAllTokenHighestBids}.
      */
     function getAllTokenHighestBids() external view override returns (Bid[] memory) {
         return getTokenHighestBids(0, _tokenIdWithBid.length());
@@ -306,7 +302,7 @@ contract PiggyMarketPlace is IPiggyMarketPlace, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev See {INFTKEYMarketPlaceV1-listToken}.
+     * @dev See {IPiggyMarketPlace-listToken}.
      * People can only list if listing is allowed
      * The timestamp set needs to be in the allowed range
      * Only token owner can list token
@@ -331,7 +327,7 @@ contract PiggyMarketPlace is IPiggyMarketPlace, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev See {INFTKEYMarketPlaceV1-delistToken}.
+     * @dev See {IPiggyMarketPlace-delistToken}.
      * msg.sender must be the seller of the listing record
      */
     function delistToken(uint256 tokenId) external override {
@@ -341,7 +337,7 @@ contract PiggyMarketPlace is IPiggyMarketPlace, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev See {INFTKEYMarketPlaceV1-buyToken}.
+     * @dev See {IPiggyMarketPlace-buyToken}.
      * Must have a valid listing
      * msg.sender must not the owner of token
      * msg.value must be at least sell price plus fees
